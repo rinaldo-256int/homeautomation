@@ -2,20 +2,43 @@
 #include <SoftwareSerial.h>
 // IMPORT ALL REQUIRED LIBRARIES
 
+#ifndef ARDUINOJSON_H
+#include <ArduinoJson.h>
+#endif
+
+#ifndef STDLIB_H
+#include <stdlib.h>
+#endif
+
+#ifndef STDIO_H
+#include <stdio.h>
+#endif
+
+#ifndef ARDUINO_H
+#include <Arduino.h>
+#endif
+
 #include <math.h>
    
 //**********ENTER IP ADDRESS OF SERVER******************//
 
-#define HOST_IP     "localhost"       // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
+#define HOST_IP     "172.16.194.129"       // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
 #define HOST_PORT   "8080"            // REPLACE WITH SERVER PORT (BACKEND FLASK API PORT)
 #define route       "api/update"      // LEAVE UNCHANGED 
-#define idNumber    "620012345"       // REPLACE WITH YOUR ID NUMBER 
+#define idNumber    "620153775"       // REPLACE WITH YOUR ID NUMBER 
+
 
 // WIFI CREDENTIALS
-#define SSID        "YOUR WIFI"      // "REPLACE WITH YOUR WIFI's SSID"   
-#define password    "YOUR PASSWORD"  // "REPLACE WITH YOUR WiFi's PASSWORD" 
+//#define SSID        "CWC-9128576 2.4"      // "REPLACE WITH YOUR WIFI's SSID"   
+//#define password    "sb3Rkgqzxtcy"  // "REPLACE WITH YOUR WiFi's PASSWORD" 
+
+#define SSID        "MonaConnect"      // "REPLACE WITH YOUR WIFI's SSID"   
+#define password    ""  // "RE
 
 #define stay        100
+#define ARDUINOJSON_USE_DOUBLE 1
+
+
  
 //**********PIN DEFINITIONS******************//
 
@@ -24,9 +47,23 @@
 #define espTX         11
 #define espTimeout_ms 300
 
+int trigPin = 2;    // Trigger
+int echoPin = 3;    // Echo
+long duration, radar_reading;
+int radar_reading_inches = 0;
+int waterHeight = 0;
+int reserveGallon = 0;
+int percentage = 0;
+int reserve_inches = 0;
+int gal = 0;
+int percent = 0;
  
  
 /* Declare your functions below */
+double calcWaterHeight(double radar_reading);
+double calcWaterReserve(double water_height);
+double calcPercentage(double water_reserve);
+double calcGal(double percentage);
  
  
 
@@ -37,19 +74,46 @@ void setup(){
 
   Serial.begin(115200); 
   // Configure GPIO pins here
-
- 
-
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
   espInit();  
  
 }
 
 void loop(){ 
-   
+
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(5);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+   pinMode(echoPin, INPUT);
+   duration = pulseIn(echoPin, HIGH);
+
+   radar_reading_inches = (duration/2) / 74;
+   waterHeight = calcWaterHeight(radar_reading_inches);
+   reserveGallon = calcWaterReserve(waterHeight);
+   percentage = calcPercentage(waterHeight);
+
+   //Serial.println(radar_reading_inches);
+   //Serial.println(waterHeight);
+   //Serial.println(reserveGallon);
+  // Serial.println(percentage); StaticJsonDocument<768> doc;  // Create JSon object
+      StaticJsonDocument<768> doc;  // Create JSon object
+      char message[260] = { 0 };
+
+      // Add key:value pairs to Json object according to below schema
+      doc["id"] = "620153775";
+      doc["type"] = "ultasonic";
+      doc["radar"] = radar_reading_inches;
+      doc["waterheight"] = waterHeight;
+        doc["reserve"] = reserveGallon;
+         doc["percentage"] = percentage;
+
+         serializeJson(doc ,message);
   // send updates with schema ‘{"id": "student_id", "type": "ultrasonic", "radar": 0, "waterheight": 0, "reserve": 0, "percentage": 0}’
-
-
-
+  espUpdate(message);
   delay(1000);  
 }
 
@@ -69,7 +133,7 @@ void espUpdate(char mssg[]){
     delay(stay);
 
     // GET REQUEST 
-    // snprintf(post,sizeof(post),"GET /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %d\r\n\r\n%s\r\n\r\n",route,HOST_IP,strlen(mssg),mssg);
+    //snprintf(post,sizeof(post),"GET /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %d\r\n\r\n%s\r\n\r\n",route,HOST_IP,strlen(mssg),mssg);
 
     // POST REQUEST
     snprintf(post,sizeof(post),"POST /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s\r\n\r\n",route,HOST_IP,strlen(mssg),mssg);
@@ -106,4 +170,31 @@ void espInit(){
 
 //***** Design and implement all util functions below ******
  
+ double calcWaterHeight(double radar_reading)
+ {
+    return 94.5 - radar_reading;
+ }
+
+ double calcWaterReserve(double water_height)
+ {
+    //3.14 * ()
+    //reserve_inches = 77.763 - water_height;
+    //percent = calcPercentage(water_height);
+    //gal = calcGal(percent);
+    double volume = 3.1415 * 61.5 * 61.5  * water_height /231.0;
+    return volume;
+ }
+
+double calcPercentage(double water_height)
+{
+  return (water_height/77.763) * 100;
+}
+double calcGal(double percentage)
+{
+  return (percentage * 1000)/100;
+}
+
+
+
+
 

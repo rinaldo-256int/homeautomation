@@ -36,6 +36,8 @@ class MQTT:
         # REGISTER CALLBACK FUNCTION FOR EACH TOPIC
         self.client.message_callback_add("620012345", self.update)
         self.client.message_callback_add("620012345_pub", self.toggle)
+        self.client.message_callback_add("620012345_sub", self.toggle)
+
 
         # ADD MQTT SERVER AND PORT INFORMATION BELOW
         self.client.connect_async("www.yanacreations.com", 1883, 60)
