@@ -21,7 +21,7 @@ export const useAppStore =  defineStore('app', ()=>{
         const form = new FormData(); // Create form
         form.append("passcode", passcode); // Add variable to form
         console.log(form)
-        const URL = `/api/set/combination/${passcode}`;
+        const URL = `/api/set/combination/`;
         try {
             const response = await fetch(URL, { method: 'POST', signal: signal,body: form, });
             if (response.ok) {

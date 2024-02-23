@@ -6,7 +6,7 @@
           <v-slider
             direction="vertical"
             v-model="radar"
-            :max="200"
+            :max="94.5"
             :min="0"
             step="0.1"
             thumb-label="always"
@@ -47,34 +47,6 @@
             <div id="container2"></div>
           </v-card>
         </v-sheet>
-        <v-dialog width="500" v-if="isVariableOver100 == true">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              text="Tank Over Maximum Capacity. Click to view"
-            >
-            </v-btn> </template
-          ><template v-slot:default="{ isActive }">
-            <v-card title="Dialog">
-              <v-card-text>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-
-                <v-btn
-                  text="Close Dialog"
-                  @click="
-                    isActive.value = false;
-                    isVariableOver100 = false;
-                  "
-                ></v-btn>
-              </v-card-actions>
-            </v-card>
-          </template>
-        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
@@ -239,6 +211,7 @@ const CreateCharts = async () => {
 watch(payload, (data) => {
   fm.setPercentage(data.percentage);
   radar.value = data.radar;
+  console.log(data.percentage);
   if (points.value > 0) {
     points.value--;
   } else {
@@ -250,14 +223,6 @@ watch(payload, (data) => {
     shift.value
   );
   gauge.value.series[0].points[0].update(parseFloat(data.reserve));
-
-  const isVariableOver100 = computed(() => {
-    if (percentage > 100) {
-      return true;
-    } else {
-      return false;
-    }
-  });
 });
 
 onMounted(() => {

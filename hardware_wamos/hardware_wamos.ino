@@ -22,18 +22,18 @@
    
 //**********ENTER IP ADDRESS OF SERVER******************//
 
-#define HOST_IP     "172.16.194.129"       // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
+#define HOST_IP     "192.168.0.2"       // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
 #define HOST_PORT   "8080"            // REPLACE WITH SERVER PORT (BACKEND FLASK API PORT)
 #define route       "api/update"      // LEAVE UNCHANGED 
 #define idNumber    "620153775"       // REPLACE WITH YOUR ID NUMBER 
 
 
 // WIFI CREDENTIALS
-//#define SSID        "CWC-9128576 2.4"      // "REPLACE WITH YOUR WIFI's SSID"   
-//#define password    "sb3Rkgqzxtcy"  // "REPLACE WITH YOUR WiFi's PASSWORD" 
+#define SSID        "CWC-9128576 2.4"      // "REPLACE WITH YOUR WIFI's SSID"   
+#define password    "sb3Rkgqzxtcy"  // "REPLACE WITH YOUR WiFi's PASSWORD" 
 
-#define SSID        "MonaConnect"      // "REPLACE WITH YOUR WIFI's SSID"   
-#define password    ""  // "RE
+//#define SSID        "MonaConnect"      // "REPLACE WITH YOUR WIFI's SSID"   
+//#define password    ""  // "RE
 
 #define stay        100
 #define ARDUINOJSON_USE_DOUBLE 1
@@ -63,8 +63,7 @@ int percent = 0;
 double calcWaterHeight(double radar_reading);
 double calcWaterReserve(double water_height);
 double calcPercentage(double water_reserve);
-double calcGal(double percentage);
- 
+
  
 
 SoftwareSerial esp(espRX, espTX); 
@@ -181,7 +180,7 @@ void espInit(){
     //reserve_inches = 77.763 - water_height;
     //percent = calcPercentage(water_height);
     //gal = calcGal(percent);
-    double volume = 3.1415 * 61.5 * 61.5  * water_height /231.0;
+    double volume = (3.1415 * 30.75 * 30.75  * water_height) /231.0;
     return volume;
  }
 
@@ -189,10 +188,7 @@ double calcPercentage(double water_height)
 {
   return (water_height/77.763) * 100;
 }
-double calcGal(double percentage)
-{
-  return (percentage * 1000)/100;
-}
+
 
 
 

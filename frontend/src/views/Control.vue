@@ -53,7 +53,7 @@ const AppStore = useAppStore();
 // VARIABLES
 const router = useRouter();
 const route = useRoute();
-var passcode = ref(null);
+var passcode = ref("0000");
 
 // FUNCTIONS
 onMounted(() => {

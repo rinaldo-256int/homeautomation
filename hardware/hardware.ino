@@ -10,7 +10,7 @@
 #include <SPI.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
-#include <Adafruit_ST7735.h> // Hardware-specific library
+#include <Adafruit_ST7735.h>  // Hardware-specific library
 
 
 
@@ -48,13 +48,11 @@ uint8_t digit_1 = 0;
 uint8_t digit_2 = 0;
 uint8_t digit_3 = 0;
 uint8_t digit_4 = 0;
-int value = 0;
-int previous_value = 0;
 
 #define button_1 32
 #define button_2 33
 #define button_3 25
-#define potentiometer 34
+#define potentiometer 36
 
 #define TFT_DC 17
 #define TFT_CS 5
@@ -72,9 +70,9 @@ int previous_value = 0;
 
 
 // MQTT CLIENT CONFIG
-static const char* pubtopic = "620012345";                         // Add your ID number here
-static const char* subtopic[] = { "620012345_sub", "/elet2415" };  // Array of Topics(Strings) to subscribe to
-static const char* mqtt_server = "www.yanacreations.com";                  // Broker IP address or Domain name as a String
+static const char* pubtopic = "620153775";                         // Add your ID number here
+static const char* subtopic[] = { "620153775_sub", "/elet2415" };  // Array of Topics(Strings) to subscribe to
+static const char* mqtt_server = "www.yanacreations.com";          // Broker IP address or Domain name as a String
 static uint16_t mqtt_port = 1883;
 
 // WIFI CREDENTIALS
@@ -140,24 +138,27 @@ void setup() {
   pinMode(button_1, INPUT_PULLUP);
   pinMode(button_2, INPUT_PULLUP);
   pinMode(button_3, INPUT_PULLUP);
-  pinMode(potentiometer, INPUT_PULLUP);
-  analogWrite(potentiometer,0);
   tft.begin();
   tft.setFont(&FreeSansBold18pt7b);
-  tft.fillScreen(ILI9341_GREEN);
-  tft.setTextColor(ILI9341_RED);
+  tft.fillScreen(ILI9341_DARKGREY);
+  tft.setTextColor(ILI9341_BLACK);
+  tft.setCursor(40, 180);
+  tft.print("BAT");
+  tft.setTextColor(ILI9341_YELLOW);
+  tft.print("MAN");
+  tft.setTextColor(ILI9341_YELLOW);
   tft.setTextSize(1);
-  tft.fillRoundRect(185, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.fillRoundRect(125, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.fillRoundRect(65, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.fillRoundRect(5, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.setCursor(20,295);
+  tft.fillRoundRect(185, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.fillRoundRect(125, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.fillRoundRect(65, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.fillRoundRect(5, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.setCursor(20, 295);
   tft.print(0);
-  tft.setCursor(80,295);
+  tft.setCursor(80, 295);
   tft.print(0);
-  tft.setCursor(140,295);
+  tft.setCursor(140, 295);
   tft.print(0);
-  tft.setCursor(200,295);
+  tft.setCursor(200, 295);
   tft.print(0);
 
 
@@ -174,50 +175,30 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   int potValue = analogRead(potentiometer);
-
   // Map the potentiometer value to a range between 0 and 9
   int mappedValue = map(potValue, 0, 4095, 0, 9);
-  Serial.print(mappedValue);
+  //Serial.println(mappedValue);
   //Serial.println(value);
-  if(currentDigit == 1)
-  {
-    if (value != previous_value)
-    {
-      digit1(mappedValue);
-      previous_value = value;
-      digit_1 = value;
-    }
-    
+  if (currentDigit == 1) {
+    digit1(mappedValue);
+    digit_1 = mappedValue;
   }
-  if(currentDigit == 2)
-  {
-    if (value != previous_value)
-    {
-      digit2(mappedValue);
-      previous_value = value;
-      digit_2 = value;
-    }
-    
+  if (currentDigit == 2) {
+
+
+    digit2(mappedValue);
+    digit_2 = mappedValue;
   }
-  if(currentDigit == 3)
-  {
-    if (value != previous_value)
-    {
-      digit3(mappedValue);
-      previous_value = value;
-      digit_3 = value;
-    }
-    
+  if (currentDigit == 3) {
+
+
+    digit3(mappedValue);
+    digit_3 = mappedValue;
   }
-  if(currentDigit == 4)
-  {
-    if (value != previous_value)
-    {
-      digit4(mappedValue);
-      previous_value = value;
-      digit_4 = value;
-    }
-    
+  if (currentDigit == 4) {
+
+    digit4(mappedValue);
+    digit_4 = mappedValue;
   }
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
@@ -241,7 +222,7 @@ void vButtonCheck(void* pvParameters) {
 
     // 3. Implement button3  functionality
     if (digitalRead(button_1) == LOW) {
-      delay(250);
+      delay(150);
       currentDigit++;
       if (currentDigit > 4) {
         currentDigit = 1;
@@ -249,12 +230,12 @@ void vButtonCheck(void* pvParameters) {
     }
 
     if (digitalRead(button_2) == LOW) {
-      delay(250);
+      delay(150);
       checkPasscode();
     }
 
     if (digitalRead(button_3) == LOW) {
-      delay(250);
+      delay(150);
       lockState = false;
       showLockState();
     }
@@ -329,12 +310,10 @@ void digit1(uint8_t number) {
   // 6. Print number to the screen
   tft.setFont(&FreeSansBold18pt7b);
   tft.setTextSize(1);
-  tft.setTextColor(ILI9341_RED);
-  tft.fillRoundRect(5, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.setCursor(20,295);
+  tft.setTextColor(ILI9341_YELLOW);
+  tft.fillRoundRect(5, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.setCursor(20, 295);
   tft.print(number);
-   
-  
 }
 
 void digit2(uint8_t number) {
@@ -347,11 +326,10 @@ void digit2(uint8_t number) {
   // 6. Print number to the screen
   tft.setFont(&FreeSansBold18pt7b);
   tft.setTextSize(1);
-  tft.setTextColor(ILI9341_RED);
-  tft.fillRoundRect(65, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.setCursor(80,295);
+  tft.setTextColor(ILI9341_YELLOW);
+  tft.fillRoundRect(65, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.setCursor(80, 295);
   tft.print(number);
-
 }
 
 void digit3(uint8_t number) {
@@ -364,9 +342,9 @@ void digit3(uint8_t number) {
   // 6. Print number to the screen
   tft.setFont(&FreeSansBold18pt7b);
   tft.setTextSize(1);
-  tft.setTextColor(ILI9341_RED);
-  tft.fillRoundRect(125, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.setCursor(140,295);
+  tft.setTextColor(ILI9341_YELLOW);
+  tft.fillRoundRect(125, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.setCursor(140, 295);
   tft.print(number);
 }
 
@@ -380,69 +358,73 @@ void digit4(uint8_t number) {
   // 6. Print number to the screen
   tft.setFont(&FreeSansBold18pt7b);
   tft.setTextSize(1);
-  tft.setTextColor(ILI9341_RED);
-  tft.fillRoundRect(185, 260, 50, 50, 5, ILI9341_PURPLE);
-  tft.setCursor(200,295);
+  tft.setTextColor(ILI9341_YELLOW);
+  tft.fillRoundRect(185, 260, 50, 50, 5, ILI9341_BLACK);
+  tft.setCursor(200, 295);
   tft.print(number);
 }
 
 
-void checkPasscode(void) {
-  // THE APPROPRIATE ROUTE IN THE BACKEND COMPONENT MUST BE CREATED BEFORE THIS FUNCTION CAN WORK
-  WiFiClient client;
-  HTTPClient http;
+void checkPasscode(void){
+    // THE APPROPRIATE ROUTE IN THE BACKEND COMPONENT MUST BE CREATED BEFORE THIS FUNCTION CAN WORK
+    WiFiClient client;
+    HTTPClient http;
 
-  if (WiFi.status() == WL_CONNECTED) {
-    
-    // 1. REPLACE LOCALHOST IN THE STRING BELOW WITH THE IP ADDRESS OF THE COMPUTER THAT YOUR BACKEND IS RUNNING ON
-    http.begin(client, "localhost:8080/api/check/combination/");  // Your Domain name with URL path or IP address with path
-    
-
-
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");  // Specify content-type header
-    char message[20];                                                     // Store the 4 digit passcode that will be sent to the backend for validation via HTTP POST
-    // 2. Insert all four (4) digits of the passcode into a string with 'passcode=1234' format and then save this modified string in the message[20] variable created above
-    sprintf(message, "passcode=%d%d%d%d", digit_1, digit_2, digit_3, digit_4);
-
-    int httpResponseCode = http.POST(message);  // Send HTTP POST request and then wait for a response
-     Serial.print(httpResponseCode);
-
-    if (httpResponseCode > 0) {
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-      String received = http.getString();
-
-      // 3. CONVERT 'received' TO JSON.
-      StaticJsonDocument<1000> doc;
-      deserializeJson(doc, received);
+    if(WiFi.status()== WL_CONNECTED){ 
       
-      const char* status = doc["status"];
-      if (strcmp(status, "complete") == 0) {
-    
-        lockState = true;
-        showLockState();
-  }
-  else
-    {
-        lockState = false;
-        showLockState();
-    }
-
-
-      // 4. PROCESS MESSAGE. The response from the route that is used to validate the passcode
-      // will be either {"status":"complete","data":"complete"}  or {"status":"failed","data":"failed"} schema.
-      // (1) if the status is complete, set the lockState variable to true, then invoke the showLockState function
-      // (2) otherwise, set the lockState variable to false, then invoke the showLockState function
-
-     
+      // 1. REPLACE LOCALHOST IN THE STRING BELOW WITH THE IP ADDRESS OF THE COMPUTER THAT YOUR BACKEND IS RUNNING ON
+      http.begin(client, "http://172.16.192.57:8080/api/check/combination/"); // Your Domain name with URL path or IP address with path 
+ 
       
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded"); // Specify content-type header      
+      char message[20];  // Store the 4 digit passcode that will be sent to the backend for validation via HTTP POST
+      
+      // 2. Insert all four (4) digits of the passcode into a string with 'passcode=1234' format and then save this modified string in the message[20] variable created above 
+      sprintf(message, "passcode=%d%d%d%d", digit_1, digit_2, digit_3, digit_4);
+      int httpResponseCode = http.POST(message);  // Send HTTP POST request and then wait for a response
+
+      if (httpResponseCode > 0) {
+        Serial.print("HTTP Response code: ");
+        Serial.println(httpResponseCode);
+        String received = http.getString();
+        
+        // 3. CONVERT 'received' TO JSON. 
+        StaticJsonDocument<1000> doc;
+        DeserializationError error = deserializeJson(doc, received); 
+        Serial.println(received); 
+        
+
+        if (error) {
+          Serial.print("deserializeJson() failed: ");
+          Serial.println(error.c_str());
+          return;
+        }
+        
+
+        // 4. PROCESS MESSAGE. The response from the route that is used to validate the passcode
+        // will be either {"status":"complete","data":"complete"}  or {"status":"failed","data":"failed"} schema.
+        // (1) if the status is complete, set the lockState variable to true, then invoke the showLockState function
+        // (2) otherwise, set the lockState variable to false, then invoke the showLockState function
+        const char* status = doc["status"];
+
+        if (strcmp(status, "complete") == 0){
+          lockState= true;
+          showLockState();
+        }
+        else{
+          lockState= false;
+          showLockState();
+        }
+        
+      }     
+        
+      // Free resources
+      http.end();
 
     }
+             
+ }
 
-    // Free resources
-    http.end();
-  }
-}
 
 
 

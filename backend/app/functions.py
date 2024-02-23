@@ -116,6 +116,7 @@ class DB:
         remotedb= self.remoteMongo('mongodb://%s:%s@%s:%s' % (self.username, self.password,self.server,self.port), tls=self.tls)
         try:
             # Check if there is a document with the provided passcode
+            passcode = str(passcode)
             count = remotedb.ELET2415.code.count_documents({'code': passcode})
             if count > 0:
                 return True

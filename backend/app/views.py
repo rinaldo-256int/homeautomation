@@ -29,7 +29,7 @@ from math import floor
 
 
 # 1. CREATE ROUTE FOR '/api/set/combination'
-@app.route('/api/set/combination/<passcode>', methods=['POST'])
+'''@app.route('/api/set/combination/<passcode>', methods=['POST'])
 def set_combination(passcode):
     if request.method == 'POST':
         try:
@@ -45,12 +45,36 @@ def set_combination(passcode):
             else:
                 return jsonify({"status": "failed", "data": "failed"})
         except Exception as e:
-            print(f"set_combination error: f{str(e)}")  
+            print(f"set_combination error: f{str(e)}")  '''
+
+@app.route('/api/set/combination/', methods=['POST'])
+def set_combination():
+    if request.method == 'POST':
+        try:
+            # Extract passcode from form data
+            form = request.form
+            passcode = escape(form.get("passcode"))
+            print(passcode)
+            passcodeInt = int(passcode)
+            passcode = str(passcode)
+            # Check if passcode is a 4-digit integer
+            if  len(passcode) == 4 and type(passcodeInt) == int :
+                # Update passcode in the database
+                success = mongo.update_passcode(passcode)   
+            if success:
+                return jsonify({"status": "complete", "data": "complete"})
+            else:
+                return jsonify({"status": "failed", "data": "failed"})
+        except Exception as e:
+            print(f"set_combination error: f{str(e)}") 
+
+
+
 
     
 # 2. CREATE ROUTE FOR '/api/check/combination'
 
-@app.route('/api/check/combination/<passcode>', methods=['POST'])
+'''@app.route('/api/check/combination/<passcode>', methods=['POST'])
 def check_combination(passcode):
     if request.method == 'POST':
         try:
@@ -61,7 +85,28 @@ def check_combination(passcode):
             else:
                 return jsonify({"status": "failed", "data": "failed"})
         except Exception as e:
-            print(f"check_combination error: f{str(e)}")  
+            print(f"check_combination error: f{str(e)}")  '''
+@app.route('/api/check/combination/', methods=['POST'])
+def check_combination():
+    print("here")
+    if request.method == 'POST':
+        try:
+            form =  request.form
+ 
+            passcode = escape(form.get("passcode"))
+            print(passcode)
+            # Call the function to check the passcode
+            print(passcode)
+            result = mongo.check_passcode(passcode)
+            if result:
+                return jsonify({"status": "complete", "data": "complete"})
+            else:
+                return jsonify({"status": "failed", "data": "failed"})
+        except Exception as e:
+            print(f"check_combination error: f{str(e)}")
+
+
+
 
 # 3. CREATE ROUTE FOR '/api/update'
             
