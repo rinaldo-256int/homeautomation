@@ -4,7 +4,6 @@
 
 //IMPORT IMAGE
 #include "uwi.h"
-#include "batman.h"
 
 #define TFT_DC    17
 #define TFT_CS    5
@@ -19,17 +18,17 @@ int value =1000;
 void setup(){
   Serial.begin(115200); 
   tft.begin();
-  //tft.fillScreen(ILI9341_WHITE);
-  tft.drawRGBBitmap(0,0, batman, 240, 320); // DRAW IMAGE ON SCREEN
-  //tft.setTextColor(ILI9341_RED);
-  //tft.setTextSize(2);
+  tft.fillScreen(ILI9341_WHITE);
+  tft.drawRGBBitmap(0,0, uwi, 240, 320); // DRAW IMAGE ON SCREEN
+  tft.setTextColor(ILI9341_RED);
+  tft.setTextSize(2);
  
 }
 void loop(void) { 
   
-  //tft.fillRoundRect(10, 50, 70, 25, 5, ILI9341_BLACK);
-  tft.setCursor(0, 0);
-  //tft.print(value);
+  tft.fillRoundRect(10, 50, 70, 25, 5, ILI9341_BLACK);
+  tft.setCursor(20, 55);
+  tft.print(value);
   value++;
   delay(1000);
 }

@@ -49,6 +49,24 @@
         </v-sheet>
       </v-col>
     </v-row>
+    <v-dialog width="500" v-model="isActive">
+      <template v-slot:default="{ isActive }">
+        <v-card
+          title="WARNING !"
+          color="warning"
+          background-color="primary darken-1"
+        >
+          <v-card-text>
+            Tank is over maximum capacity. Open overflow valve now to resolve
+            issue.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -89,6 +107,8 @@ var fm = new FluidMeter();
 const percentage = ref(null);
 const points = ref(600);
 const shift = ref(false);
+var isActive = ref(null);
+
 // FUNCTIONS
 
 const CreateCharts = async () => {
@@ -211,6 +231,11 @@ const CreateCharts = async () => {
 watch(payload, (data) => {
   fm.setPercentage(data.percentage);
   radar.value = data.radar;
+  if (data.percentage > 100) {
+    isActive.value = true;
+  } else {
+    isActive.value = false;
+  }
   console.log(data.percentage);
   if (points.value > 0) {
     points.value--;

@@ -113,7 +113,7 @@ void loop(){
          serializeJson(doc ,message);
   // send updates with schema ‘{"id": "student_id", "type": "ultrasonic", "radar": 0, "waterheight": 0, "reserve": 0, "percentage": 0}’
   espUpdate(message);
-  delay(1000);  
+  delay(500);  
 }
 
  

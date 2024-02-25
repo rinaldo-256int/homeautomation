@@ -76,11 +76,11 @@ static const char* mqtt_server = "www.yanacreations.com";          // Broker IP 
 static uint16_t mqtt_port = 1883;
 
 // WIFI CREDENTIALS
-//const char* ssid = "CWC-9128576 2.4";   // Add your Wi-Fi ssid
-//const char* password = "sb3Rkgqzxtcy";  // Add your Wi-Fi password
+const char* ssid = "CWC-9128576 2.4";   // Add your Wi-Fi ssid
+const char* password = "sb3Rkgqzxtcy";  // Add your Wi-Fi password
 
-const char* ssid = "MonaConnect";   // Add your Wi-Fi ssid
-const char* password = "";  // Add your Wi-Fi password
+//const char* ssid = "MonaConnect";   // Add your Wi-Fi ssid
+//const char* password = "";  // Add your Wi-Fi password
 
 
 
@@ -171,34 +171,29 @@ void setup() {
 }
 
 
-
 void loop() {
-  // put your main code here, to run repeatedly:
   int potValue = analogRead(potentiometer);
-  // Map the potentiometer value to a range between 0 and 9
-  int mappedValue = map(potValue, 0, 4095, 0, 9);
-  //Serial.println(mappedValue);
-  //Serial.println(value);
+  potValue = map(potValue, 0, 4095, 0, 80);
+  potValue %= 10;
   if (currentDigit == 1) {
-    digit1(mappedValue);
-    digit_1 = mappedValue;
+
+    digit1(potValue);
+    digit_1 = potValue;
   }
   if (currentDigit == 2) {
 
-
-    digit2(mappedValue);
-    digit_2 = mappedValue;
+    digit2(potValue);
+    digit_2 = potValue;
   }
   if (currentDigit == 3) {
 
-
-    digit3(mappedValue);
-    digit_3 = mappedValue;
+    digit3(potValue);
+    digit_3 = potValue;
   }
   if (currentDigit == 4) {
 
-    digit4(mappedValue);
-    digit_4 = mappedValue;
+    digit4(potValue);
+    digit_4 = potValue;
   }
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
@@ -222,7 +217,7 @@ void vButtonCheck(void* pvParameters) {
 
     // 3. Implement button3  functionality
     if (digitalRead(button_1) == LOW) {
-      delay(150);
+      delay(100);
       currentDigit++;
       if (currentDigit > 4) {
         currentDigit = 1;
@@ -235,12 +230,12 @@ void vButtonCheck(void* pvParameters) {
     }
 
     if (digitalRead(button_3) == LOW) {
-      delay(150);
+      delay(100);
       lockState = false;
       showLockState();
     }
 
-    vTaskDelay(200 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
 
@@ -365,65 +360,61 @@ void digit4(uint8_t number) {
 }
 
 
-void checkPasscode(void){
-    // THE APPROPRIATE ROUTE IN THE BACKEND COMPONENT MUST BE CREATED BEFORE THIS FUNCTION CAN WORK
-    WiFiClient client;
-    HTTPClient http;
+void checkPasscode(void) {
+  // THE APPROPRIATE ROUTE IN THE BACKEND COMPONENT MUST BE CREATED BEFORE THIS FUNCTION CAN WORK
+  WiFiClient client;
+  HTTPClient http;
 
-    if(WiFi.status()== WL_CONNECTED){ 
-      
-      // 1. REPLACE LOCALHOST IN THE STRING BELOW WITH THE IP ADDRESS OF THE COMPUTER THAT YOUR BACKEND IS RUNNING ON
-      http.begin(client, "http://172.16.192.57:8080/api/check/combination/"); // Your Domain name with URL path or IP address with path 
- 
-      
-      http.addHeader("Content-Type", "application/x-www-form-urlencoded"); // Specify content-type header      
-      char message[20];  // Store the 4 digit passcode that will be sent to the backend for validation via HTTP POST
-      
-      // 2. Insert all four (4) digits of the passcode into a string with 'passcode=1234' format and then save this modified string in the message[20] variable created above 
-      sprintf(message, "passcode=%d%d%d%d", digit_1, digit_2, digit_3, digit_4);
-      int httpResponseCode = http.POST(message);  // Send HTTP POST request and then wait for a response
+  if (WiFi.status() == WL_CONNECTED) {
 
-      if (httpResponseCode > 0) {
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpResponseCode);
-        String received = http.getString();
-        
-        // 3. CONVERT 'received' TO JSON. 
-        StaticJsonDocument<1000> doc;
-        DeserializationError error = deserializeJson(doc, received); 
-        Serial.println(received); 
-        
+    // 1. REPLACE LOCALHOST IN THE STRING BELOW WITH THE IP ADDRESS OF THE COMPUTER THAT YOUR BACKEND IS RUNNING ON
+    http.begin(client, "http://192.168.0.2:8080/api/check/combination/");  // Your Domain name with URL path or IP address with path
 
-        if (error) {
-          Serial.print("deserializeJson() failed: ");
-          Serial.println(error.c_str());
-          return;
-        }
-        
 
-        // 4. PROCESS MESSAGE. The response from the route that is used to validate the passcode
-        // will be either {"status":"complete","data":"complete"}  or {"status":"failed","data":"failed"} schema.
-        // (1) if the status is complete, set the lockState variable to true, then invoke the showLockState function
-        // (2) otherwise, set the lockState variable to false, then invoke the showLockState function
-        const char* status = doc["status"];
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");  // Specify content-type header
+    char message[20];                                                     // Store the 4 digit passcode that will be sent to the backend for validation via HTTP POST
 
-        if (strcmp(status, "complete") == 0){
-          lockState= true;
-          showLockState();
-        }
-        else{
-          lockState= false;
-          showLockState();
-        }
-        
-      }     
-        
-      // Free resources
-      http.end();
+    // 2. Insert all four (4) digits of the passcode into a string with 'passcode=1234' format and then save this modified string in the message[20] variable created above
+    sprintf(message, "passcode=%d%d%d%d", digit_1, digit_2, digit_3, digit_4);
+    int httpResponseCode = http.POST(message);  // Send HTTP POST request and then wait for a response
 
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String received = http.getString();
+
+      // 3. CONVERT 'received' TO JSON.
+      StaticJsonDocument<1000> doc;
+      DeserializationError error = deserializeJson(doc, received);
+      Serial.println(received);
+
+
+      if (error) {
+        Serial.print("deserializeJson() failed: ");
+        Serial.println(error.c_str());
+        return;
+      }
+
+
+      // 4. PROCESS MESSAGE. The response from the route that is used to validate the passcode
+      // will be either {"status":"complete","data":"complete"}  or {"status":"failed","data":"failed"} schema.
+      // (1) if the status is complete, set the lockState variable to true, then invoke the showLockState function
+      // (2) otherwise, set the lockState variable to false, then invoke the showLockState function
+      const char* status = doc["status"];
+
+      if (strcmp(status, "complete") == 0) {
+        lockState = true;
+        showLockState();
+      } else {
+        lockState = false;
+        showLockState();
+      }
     }
-             
- }
+
+    // Free resources
+    http.end();
+  }
+}
 
 
 
